@@ -1,12 +1,18 @@
 from __future__ import print_function
 import subprocess
+from datetime import datetime
 
+
+def piped(params):
+    return subprocess.Popen(
+        params,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE
+    )
 
 def identify(file):
-    p = subprocess.Popen(
+    p = piped(
         ['identify', '-format', '%[fx:w],%m', file],
-        stderr=subprocess.PIPE,
-        stdout=subprocess.PIPE,
     )
     o, e = p.communicate()
 
@@ -32,10 +38,7 @@ def convert(src, dest, quality=None, size=None, mono=False):
     params.append(src)
     params.append(dest)
 
-    p = subprocess.Popen(params,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE
-    )
+    p = piped(params)
     o, e = p.communicate()
     print(o, e)
 
@@ -48,12 +51,29 @@ def pngquant(src, quality=None):
 
     params.append(src)
 
-    p = subprocess.Popen(params,
-        #stdout=subprocess.PIPE,
-        #stderr=subprocess.PIPE
-    )
-
+    p = piped(params)
     o, e = p.communicate()
+
+def touch(file, mt=None):
+    params = ['touch']
+
+    if mt:
+        params.append('-mt')
+
+        if isinstance(mt, float) or isinstance(mt, int):
+            mt = datetime.fromtimestamp(mt)
+            raw_mt = mt.strftime('%Y%m%d%H%M%S')
+        else:
+            raise ValueError('invalid -mt')
+
+        params.append(str(raw_mt))
+
+    params.append(file)
+
+    p = piped(params)
+    p.communicate()
+
+    return p.returncode == 0
 
 class ImageIdentity:
     def __init__(self, raw):
@@ -96,10 +116,8 @@ def run():
     if subprogram == 'resizer':
 
         for file in args.paths:
-            p = subprocess.Popen(
+            p = piped(
                 ['identify', '-format', '%[fx:w]', file],
-                stderr=subprocess.PIPE,
-                stdout=subprocess.PIPE,
             )
 
             o, e = p.communicate()
@@ -117,6 +135,10 @@ def run():
                             quality=args.quality
                             )
                     newstat = os.stat(file)
+
+                    if args.keep_mtime:
+                        touch(file, mt=stat.st_mtime)
+
                     print('{0} {1} -> {2} ({3}%)'.format(
                         file, stat.st_size, newstat.st_size,
                         100 - (newstat.st_size * 100 / stat.st_size),
