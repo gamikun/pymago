@@ -61,8 +61,7 @@ class ImageIdentity:
         self.size = int(data[0])
         self.format = data[1].lower()
 
-
-if __name__ == '__main__':
+def run():
     import os
     import sys
     from argparse import ArgumentParser
@@ -200,3 +199,6 @@ if __name__ == '__main__':
     else:
         print('invalid subprogram: {0}'.format(subprogram))
         sys.exit(1)
+
+if __name__ == '__main__':
+    run()
