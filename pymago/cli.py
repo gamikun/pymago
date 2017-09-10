@@ -40,7 +40,6 @@ def convert(src, dest, quality=None, size=None, mono=False):
 
     p = piped(params)
     o, e = p.communicate()
-    print(o, e)
 
 def pngquant(src, quality=None):
     params = ['pngquant', '--force', '--ext', '.png']
@@ -92,6 +91,10 @@ def run():
     parser.add_argument('-m', dest='max_size', type=int)
     parser.add_argument('-s', dest='size', type=int)
     parser.add_argument('-f', dest='to_format')
+    parser.add_argument('-v', dest='is_verbose',
+                        action='store_const',
+                        const=True, default=False,
+                        )
     parser.add_argument('--keep-mtime', action='store_const',
                         const=True, default=False, dest='keep_mtime',
                         )
@@ -139,14 +142,13 @@ def run():
                     if args.keep_mtime:
                         touch(file, mt=stat.st_mtime)
 
-                    print('{0} {1} -> {2} ({3}%)'.format(
-                        file, stat.st_size, newstat.st_size,
-                        100 - (newstat.st_size * 100 / stat.st_size),
-                    ))
+                    if args.is_verbose:
+                        print('{0} {1} -> {2} ({3}%)'.format(
+                            file, stat.st_size, newstat.st_size,
+                            100 - (newstat.st_size * 100 / stat.st_size),
+                        ))
 
                 except Exception as ex:
-                    raise
-                    #print(ex )
                     print('{0} failed'.format(file), file=sys.stderr)
 
     elif subprogram == 'resizer-db':
@@ -211,15 +213,18 @@ def run():
                     c.execute(query, (ba, rowid))
                     conn.commit()
 
-                print('{0} --> {1} (id: {2})'.format(old_size, new_size, rowid))
-                #break
+                if args.is_verbose:
+                    print('{0} --> {1} (id: {2})'\
+                        .format(old_size, new_size, rowid))
 
-
-            print('total: {0} --> {1}'\
-                .format(total_old_size, total_new_size))
+            if args.is_verbose:
+                print('total: {0} --> {1}'\
+                    .format(total_old_size, total_new_size))
 
     else:
-        print('invalid subprogram: {0}'.format(subprogram))
+        print('invalid subprogram: {0}'.format(subprogram),
+              file=sys.stderr
+              )
         sys.exit(1)
 
 if __name__ == '__main__':
