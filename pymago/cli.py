@@ -1,6 +1,7 @@
 from __future__ import print_function
 import subprocess
 from datetime import datetime
+import pymago
 
 
 def piped(params):
@@ -85,32 +86,63 @@ def run():
     import sys
     from argparse import ArgumentParser
 
-    parser = ArgumentParser()
+    parser = ArgumentParser('pymago',
+        description=('You can practically convert images from '
+                     'storage in your hdd or an database.'
+                     ),
+        epilog='I hope this is explicit enough'
+    )
     parser.add_argument('subprogram', nargs=1)
     parser.add_argument('paths', nargs='*')
-    parser.add_argument('-m', dest='max_size', type=int)
-    parser.add_argument('-s', dest='size', type=int)
-    parser.add_argument('-f', dest='to_format')
+    parser.add_argument('-m', dest='max_size', type=int,
+                        help=('If the given image(s) is bigger '
+                              'than this width, will be resized, '
+                              'otherwise skipped.'
+                              )
+                        )
+    parser.add_argument('-s', dest='size', type=int,
+                        help=('Downsize or upsize without exception '
+                              'to the given width.')
+                        )
+    parser.add_argument('-f', dest='to_format',
+                        help='jpg, png or gif',
+                        choices=['jpg', 'png', 'gif']
+                        )
     parser.add_argument('-v', dest='is_verbose',
                         action='store_const',
                         const=True, default=False,
+                        help=('Prints information about the conversion '
+                              'and skips.'),
                         )
+    parser.add_argument('--version', action='version',
+                        version='%(prog)s ' + pymago.__version__)
     parser.add_argument('--keep-mtime', action='store_const',
                         const=True, default=False, dest='keep_mtime',
+                        help=('Motification time will be the same as '
+                              'before the conversion.'),
                         )
-    parser.add_argument('-q', dest='quality', type=int)
+    parser.add_argument('-q', dest='quality', type=int,
+                        help='Quality from 0 to 100.'
+                        )
 
     # Database
-    parser.add_argument('-d', dest='dsn')
+    parser.add_argument('-d', dest='dsn',
+                        help=('Determines the database dsn for obtaining '
+                              'the list of images data.')
+                        )
 
     # Various flags
     parser.add_argument('--optimize-png', action='store_const',
                         const=True, default=False,
-                        dest='optimize_png'
+                        dest='optimize_png',
+                        help=('When FORMAT is set PNG, the final image '
+                              'will also be optimized with pngquant if '
+                              'available.')
                         )
     parser.add_argument('--monochrome', action='store_const',
                         const=True, default=False,
-                        dest='mono'
+                        dest='mono',
+                        help='Monochrome image.'
                         )
 
     args = parser.parse_args()
