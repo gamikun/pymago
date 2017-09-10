@@ -113,10 +113,10 @@ if __name__ == '__main__':
             if args.max_size and w > args.max_size:
                 try:
                     stat = os.stat(file)
-                    subprocess.check_call([
-                        'convert', '-resize', str(args.max_size),
-                        file, file
-                    ])
+                    convert(file, file, 
+                            size=args.max_size,
+                            quality=args.quality
+                            )
                     newstat = os.stat(file)
                     print('{0} {1} -> {2} ({3}%)'.format(
                         file, stat.st_size, newstat.st_size,

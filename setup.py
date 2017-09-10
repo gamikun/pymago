@@ -4,7 +4,7 @@ from setuptools import setup
 setup(
   name = 'pymago',
   packages = ['pymago'], # this must be the same as the name above
-  version = '0.1a2',
+  version = '0.1a3',
   description = 'CLI Tool for optimizing folder of images',
   long_description = open(join(dirname(__file__), 'README.txt')).read(),
   install_requires=[],
