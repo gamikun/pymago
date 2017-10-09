@@ -1,3 +1,10 @@
+October 7th, 2017
+-----------------
+* New subprogram png2jpeg.
+* Added --keep-extension.
+* New conditions for converting only when a picture has no alpha channel: --if-opaque.
+* Also converting only if size is exact: -if-size.
+
 Sep 9th, 2017
 --------------
 * Flag verbose (-v) implemented for printing all converted.

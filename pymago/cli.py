@@ -12,9 +12,9 @@ def piped(params):
     )
 
 def identify(file):
-    p = piped(
-        ['identify', '-format', '%[fx:w],%m', file],
-    )
+    p = piped(['identify',
+        '-format','%[fx:w],%[fx:h],%m,%A', file
+    ])
     o, e = p.communicate()
 
     if p.returncode > 0:
@@ -79,11 +79,28 @@ class ImageIdentity:
     def __init__(self, raw):
         data = raw.split(',')
         self.size = int(data[0])
-        self.format = data[1].lower()
+        self.width = int(data[0])
+        self.height = int(data[1])
+
+        if len(data) > 2:
+            self.format = data[2].lower()
+        else:
+            self.format = None
+
+        if len(data) > 3:
+            alpha = data[3].lower()
+            self.is_transparent = (
+                alpha.startswith('blend')
+                    or alpha.startswith('true')
+            )
+        else:
+            self.is_transparent = False
+
 
 def run():
     import os
     import sys
+    import shutil
     from argparse import ArgumentParser
 
     parser = ArgumentParser('pymago',
@@ -121,8 +138,18 @@ def run():
                         help=('Motification time will be the same as '
                               'before the conversion.'),
                         )
+    parser.add_argument('--keep-extension', action='store_const', const=True,
+                        default=False, dest='keep_extension'
+                        )
     parser.add_argument('-q', dest='quality', type=int,
                         help='Quality from 0 to 100.'
+                        )
+    parser.add_argument('-if-size', dest='if_size')
+    parser.add_argument('--if-opaque', action='store_const',
+                        const=True, default=False, dest='if_opaque'
+                        )
+    parser.add_argument('--dry-run', action='store_const', const=True,
+                        default=False, dest='dry_run'
                         )
 
     # Database
@@ -252,6 +279,51 @@ def run():
             if args.is_verbose:
                 print('total: {0} --> {1}'\
                     .format(total_old_size, total_new_size))
+
+    elif subprogram == 'pngquant':
+        if args.if_size:
+            expected_width, expected_height = [
+                int(x) for x in args.if_size.split('x')
+            ]
+        else:
+            expected_width, expected_height = None, None
+
+        for file in args.paths:
+            info = identify(file)
+
+            if not info:
+                print('cannot idenfity {0}'.format(file))
+                continue
+
+            if args.if_size:
+                if expected_width != info.width \
+                or expected_height != info.height:
+                    continue
+
+            if not args.dry_run:
+                pngquant(file)
+
+            print('converted {0}'.format(file))
+
+    elif subprogram == 'png2jpeg':
+        for file in args.paths:
+            info = identify(file)
+            dest_file = file + '.jpg'
+
+            if not info:
+                print('cannot indentify: {0}'.format(file))
+                continue
+
+            if args.if_opaque:
+                if info.is_transparent:
+                    continue
+
+            if not args.dry_run:
+                convert(file, dest_file)
+                if args.keep_extension:
+                    shutil.move(dest_file, file)
+
+            print('converted: {0}'.format(file))
 
     else:
         print('invalid subprogram: {0}'.format(subprogram),
