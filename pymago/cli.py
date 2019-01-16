@@ -97,7 +97,9 @@ def tint(filename, color):
             data[index * 4 + 2] = b
 
     new_image = Image.frombytes(image.mode, image.size, bytes(data))
-    new_image.save(filename + '.png')
+
+    if not args.dry_run:
+        new_image.save(filename)
 
 class ImageIdentity:
     def __init__(self, raw):

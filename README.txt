@@ -1,3 +1,7 @@
+January 16th, 2019
+-----------------
+* New method "tint" for tinting images. Use -color.
+
 October 7th, 2017
 -----------------
 * New subprogram png2jpeg.
