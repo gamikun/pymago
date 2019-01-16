@@ -9,7 +9,7 @@ binpath = join(basepath, 'bin')
 setup(
   name = 'pymago',
   packages = ['pymago'],
-  version = pymago.__version__,
+  version = pymago.version,
   description = 'CLI Tool for optimizing folder of images',
   long_description = open(join(basepath, 'README.txt')).read(),
   scripts = [join(binpath, 'pymago')],

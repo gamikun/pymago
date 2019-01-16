@@ -75,6 +75,30 @@ def touch(file, mt=None):
 
     return p.returncode == 0
 
+def tint(filename, color):
+    """ Given a PNG file, replaces all the non-transparent pixels
+    with the given color. """
+    try:
+        from PIL import Image, ImageColor
+    except ImportError:
+        print('Pillow not installed.\nInstall it with pip install pillow')
+        return
+
+    image = Image.open(filename)
+    width, height = image.size
+    pixel_count = width * height
+    data = bytearray(image.tobytes())
+    r, g, b = ImageColor.getrgb(color)
+
+    for index in range(pixel_count):
+        if data[index * 4 + 3] > 0:
+            data[index * 4] = r
+            data[index * 4 + 1] = g
+            data[index * 4 + 2] = b
+
+    new_image = Image.frombytes(image.mode, image.size, bytes(data))
+    new_image.save(filename + '.png')
+
 class ImageIdentity:
     def __init__(self, raw):
         data = raw.split(',')
@@ -158,6 +182,12 @@ def run():
                               'the list of images data.')
                         )
 
+    # General colors
+    parser.add_argument('-color', dest='color',
+                        default='black',
+                        help=('The selected color for tint. Can be hexadecimal')
+                        )
+
     # Various flags
     parser.add_argument('--optimize-png', action='store_const',
                         const=True, default=False,
@@ -171,6 +201,7 @@ def run():
                         dest='mono',
                         help='Monochrome image.'
                         )
+    parser.add_argument('--rowid', dest='db_row_id')
 
     args = parser.parse_args()
     subprogram = args.subprogram[0]
@@ -218,9 +249,15 @@ def run():
             table = parts[2]
             column = parts[3]
             cursor = conn.cursor()
+            params = None
             query = 'select id, "{0}" from "{1}"'
+
+            if args.db_row_id:
+                params = (args.db_row_id, )
+                query += ' where id = %s'
+
             query = query.format(column, table)
-            cursor.execute(query)
+            cursor.execute(query, params)
 
             total_old_size = 0
             total_new_size = 0
@@ -269,8 +306,13 @@ def run():
                     ba = bytearray(fp.read())
                     new_size = len(ba)
                     total_new_size += new_size
+
                     c.execute(query, (ba, rowid))
-                    conn.commit()
+
+                    if not args.dry_run:
+                        conn.commit()
+                    else:
+                        conn.rollback()
 
                 if args.is_verbose:
                     print('{0} --> {1} (id: {2})'\
@@ -324,6 +366,10 @@ def run():
                     shutil.move(dest_file, file)
 
             print('converted: {0}'.format(file))
+
+    elif subprogram == 'tint':
+        for file in args.paths:
+            tint(file, args.color)
 
     else:
         print('invalid subprogram: {0}'.format(subprogram),
