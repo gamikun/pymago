@@ -1,3 +1,7 @@
+Novembre 5th, 2020
+-----------------
+* Fixed string errors in python3.
+
 January 16th, 2019
 -----------------
 * New method "tint" for tinting images. Use -color.

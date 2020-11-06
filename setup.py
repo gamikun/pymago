@@ -11,7 +11,7 @@ setup(
   packages = ['pymago'],
   version = pymago.version,
   description = 'CLI Tool for optimizing folder of images',
-  long_description = open(join(basepath, 'README.txt')).read(),
+  #long_description = open(join(basepath, 'README.txt')).read(),
   scripts = [join(binpath, 'pymago'), join(binpath, 'mago')],
   install_requires=[],
   author = 'Gamaliel Espinoza M.',
