@@ -1,2 +1,2 @@
-version = '0.2.0.post3'
+version = '0.2.1b'
 __version__ = version

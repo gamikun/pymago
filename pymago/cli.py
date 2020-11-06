@@ -75,7 +75,7 @@ def touch(file, mt=None):
 
     return p.returncode == 0
 
-def tint(filename, color):
+def tint(filename, color, args=None):
     """ Given a PNG file, replaces all the non-transparent pixels
     with the given color. """
     try:
@@ -98,12 +98,12 @@ def tint(filename, color):
 
     new_image = Image.frombytes(image.mode, image.size, bytes(data))
 
-    if not args.dry_run:
+    if not args or not args.dry_run:
         new_image.save(filename)
 
 class ImageIdentity:
     def __init__(self, raw):
-        data = raw.split(',')
+        data = raw.split(b',')
         self.size = int(data[0])
         self.width = int(data[0])
         self.height = int(data[1])
@@ -116,8 +116,8 @@ class ImageIdentity:
         if len(data) > 3:
             alpha = data[3].lower()
             self.is_transparent = (
-                alpha.startswith('blend')
-                    or alpha.startswith('true')
+                alpha.startswith(b'blend')
+                    or alpha.startswith(b'true')
             )
         else:
             self.is_transparent = False
@@ -371,7 +371,7 @@ def run():
 
     elif subprogram == 'tint':
         for file in args.paths:
-            tint(file, args.color)
+            tint(file, args.color, args=args)
 
     else:
         print('invalid subprogram: {0}'.format(subprogram),
