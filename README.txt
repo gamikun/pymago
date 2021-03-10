@@ -1,4 +1,10 @@
-Novembre 5th, 2020
+March 10th, 2021 (0.4)
+-----------------------
+* New program named as ImageMagick: convert, wich can easily convert a lot of files into another format.
+* New submodule with the structure of programs.
+* Process related functions are now inside process.py.
+
+November 5th, 2020
 -----------------
 * Fixed string errors in python3.
 
