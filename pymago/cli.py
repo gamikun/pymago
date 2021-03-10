@@ -1,15 +1,9 @@
 from __future__ import print_function
 import subprocess
 from datetime import datetime
+from pymago.programs import convert as convert_program
+from pymago.process import piped, convert, touch
 import pymago
-
-
-def piped(params):
-    return subprocess.Popen(
-        params,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE
-    )
 
 def identify(file):
     p = piped(['identify',
@@ -22,26 +16,6 @@ def identify(file):
 
     return ImageIdentity(o)
 
-def convert(src, dest, quality=None, size=None, mono=False):
-    params = ['convert']
-
-    if quality:
-        params.append('-quality')
-        params.append(str(quality))
-
-    if size:
-        params.append('-resize')
-        params.append(str(size))
-
-    if mono:
-        params.append('-monochrome')
-
-    params.append(src)
-    params.append(dest)
-
-    p = piped(params)
-    o, e = p.communicate()
-
 def pngquant(src, quality=None):
     params = ['pngquant', '--force', '--ext', '.png']
 
@@ -53,27 +27,6 @@ def pngquant(src, quality=None):
 
     p = piped(params)
     o, e = p.communicate()
-
-def touch(file, mt=None):
-    params = ['touch']
-
-    if mt:
-        params.append('-mt')
-
-        if isinstance(mt, float) or isinstance(mt, int):
-            mt = datetime.fromtimestamp(mt)
-            raw_mt = mt.strftime('%Y%m%d%H%M%S')
-        else:
-            raise ValueError('invalid -mt')
-
-        params.append(str(raw_mt))
-
-    params.append(file)
-
-    p = piped(params)
-    p.communicate()
-
-    return p.returncode == 0
 
 def tint(filename, color, args=None):
     """ Given a PNG file, replaces all the non-transparent pixels
@@ -147,9 +100,9 @@ def run():
                         help=('Downsize or upsize without exception '
                               'to the given width.')
                         )
-    parser.add_argument('-f', dest='to_format',
+    parser.add_argument('-f', '-format', dest='to_format',
                         help='jpg, png or gif',
-                        choices=['jpg', 'png', 'gif']
+                        choices=['jpg', 'png', 'gif', 'webp', 'tiff', 'bmp']
                         )
     parser.add_argument('-v', dest='is_verbose',
                         action='store_const',
@@ -368,6 +321,9 @@ def run():
                     shutil.move(dest_file, file)
 
             print('converted: {0}'.format(file))
+
+    elif subprogram == 'convert':
+        convert_program.execute(args)
 
     elif subprogram == 'tint':
         for file in args.paths:
