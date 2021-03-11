@@ -11,4 +11,7 @@ def execute(args):
     for path in args.paths:
         filename, extension = os.path.splitext(path)
         new_path = '%s.%s' % (filename, args.to_format, )
-        convert(path, new_path)
+        convert(path, new_path,
+            resize=args.resize,
+            quality=args.quality,
+        )

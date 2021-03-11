@@ -104,6 +104,7 @@ def run():
                         help='jpg, png or gif',
                         choices=['jpg', 'png', 'gif', 'webp', 'tiff', 'bmp']
                         )
+    parser.add_argument('-resize', dest='resize')
     parser.add_argument('-v', dest='is_verbose',
                         action='store_const',
                         const=True, default=False,

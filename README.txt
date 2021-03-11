@@ -1,3 +1,6 @@
+March 10th, 2021 (0.5)
+* New args -quality and -resize for convert.
+
 March 10th, 2021 (0.4)
 -----------------------
 * New program named as ImageMagick: convert, wich can easily convert a lot of files into another format.

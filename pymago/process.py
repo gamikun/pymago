@@ -8,12 +8,20 @@ def piped(params):
         stderr=subprocess.PIPE
     )
 
-def convert(src, dest, quality=None, size=None, mono=False):
+def convert(src, dest,
+    quality=None,
+    size=None,
+    mono=False,
+    resize=None):
     params = ['convert']
 
     if quality:
         params.append('-quality')
         params.append(str(quality))
+
+    if resize:
+        params.append('-resize')
+        params.append(str(resize))
 
     if size:
         params.append('-resize')
