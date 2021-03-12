@@ -131,6 +131,7 @@ def run():
     parser.add_argument('--dry-run', action='store_const', const=True,
                         default=False, dest='dry_run'
                         )
+    parser.add_argument('-suffix', dest='suffix', default="")
 
     # Database
     parser.add_argument('-d', dest='dsn',

@@ -1,3 +1,6 @@
+## March 12th, 2021 (0.6)
+* New argument `-suffix` to append to the end of the file.
+
 ## March 10th, 2021 (0.5)
 * New args -quality and -resize for convert.
 
