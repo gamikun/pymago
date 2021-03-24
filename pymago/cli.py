@@ -159,6 +159,7 @@ def run():
                         help='Monochrome image.'
                         )
     parser.add_argument('--rowid', dest='db_row_id')
+    parser.add_argument('-batch-file', dest='batch_file')
 
     args = parser.parse_args()
     subprogram = args.subprogram[0]

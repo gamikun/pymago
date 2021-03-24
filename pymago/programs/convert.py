@@ -1,4 +1,4 @@
-from pymago.process import piped, convert
+from pymago.process import piped, convert, pngquant
 import subprocess
 import sys
 import os
@@ -19,3 +19,6 @@ def execute(args):
             resize=args.resize,
             quality=args.quality,
         )
+
+        if args.optimize_png:
+            pngquant(new_path, quality=args.quality)

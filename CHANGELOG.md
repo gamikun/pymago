@@ -1,3 +1,6 @@
+## March 23th, 2021 (0.7)
+* The argument `--optimize-png` is now supported for command `convert`.
+
 ## March 12th, 2021 (0.6)
 * New argument `-suffix` to append to the end of the file.
 

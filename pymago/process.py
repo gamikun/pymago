@@ -56,3 +56,15 @@ def touch(file, mt=None):
     p.communicate()
 
     return p.returncode == 0
+
+def pngquant(src, quality=None):
+    params = ['pngquant', '--force', '--ext', '.png']
+
+    if quality:
+        params.append('-q')
+        params.append(str(quality))
+
+    params.append(src)
+
+    p = piped(params)
+    o, e = p.communicate()
