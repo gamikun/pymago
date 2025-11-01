@@ -1,7 +1,7 @@
 from __future__ import print_function
 import subprocess
 from datetime import datetime
-from pymago.programs import convert as convert_program
+from pymago.programs import convert as convert_program, tint
 from pymago.process import piped, convert, touch
 import pymago
 
@@ -27,32 +27,6 @@ def pngquant(src, quality=None):
 
     p = piped(params)
     o, e = p.communicate()
-
-def tint(filename, color, args=None):
-    """ Given a PNG file, replaces all the non-transparent pixels
-    with the given color. """
-    try:
-        from PIL import Image, ImageColor
-    except ImportError:
-        print('Pillow not installed.\nInstall it with pip install pillow')
-        return
-
-    image = Image.open(filename)
-    width, height = image.size
-    pixel_count = width * height
-    data = bytearray(image.tobytes())
-    r, g, b = ImageColor.getrgb(color)
-
-    for index in range(pixel_count):
-        if data[index * 4 + 3] > 0:
-            data[index * 4] = r
-            data[index * 4 + 1] = g
-            data[index * 4 + 2] = b
-
-    new_image = Image.frombytes(image.mode, image.size, bytes(data))
-
-    if not args or not args.dry_run:
-        new_image.save(filename)
 
 class ImageIdentity:
     def __init__(self, raw):
@@ -160,6 +134,7 @@ def run():
                         )
     parser.add_argument('--rowid', dest='db_row_id')
     parser.add_argument('-batch-file', dest='batch_file')
+    parser.add_argument('--desaturate', action='store_true', default=False)
 
     args = parser.parse_args()
     subprogram = args.subprogram[0]
@@ -252,6 +227,7 @@ def run():
                         quality=args.quality,
                         size=imgsize,
                         mono=args.mono,
+                        desaturate=args.desaturate,
                         )
 
                 if args.optimize_png:
@@ -319,7 +295,7 @@ def run():
                     continue
 
             if not args.dry_run:
-                convert(file, dest_file)
+                convert(file, dest_file, desaturate=args.desaturate)
                 if args.keep_extension:
                     shutil.move(dest_file, file)
 
@@ -329,8 +305,7 @@ def run():
         convert_program.execute(args)
 
     elif subprogram == 'tint':
-        for file in args.paths:
-            tint(file, args.color, args=args)
+        tint.execute(args)
 
     else:
         print('invalid subprogram: {0}'.format(subprogram),

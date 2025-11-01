@@ -12,7 +12,9 @@ def convert(src, dest,
     quality=None,
     size=None,
     mono=False,
-    resize=None):
+    resize=None,
+    desaturate=False
+):
     params = ['convert']
 
     if quality:
@@ -29,6 +31,13 @@ def convert(src, dest,
 
     if mono:
         params.append('-monochrome')
+
+    if desaturate:
+        params.append('-channel')
+        params.append('RGB')
+        params.append('-colorspace')
+        params.append('gray')
+        params.append('+channel')
 
     params.append(src)
     params.append(dest)

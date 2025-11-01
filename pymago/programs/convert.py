@@ -18,6 +18,7 @@ def execute(args):
         convert(path, new_path,
             resize=args.resize,
             quality=args.quality,
+            
         )
 
         if args.optimize_png:
